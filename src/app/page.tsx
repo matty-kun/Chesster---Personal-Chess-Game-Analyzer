@@ -1,14 +1,33 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useChessGame } from "@/hooks/useChessGame";
+import { useStockfish } from "@/hooks/useStockfish";
 import { Board } from "@/components/Board";
 import { MoveList } from "@/components/MoveList";
 import { GameControls } from "@/components/GameControls";
 import { GameHeader } from "@/components/GameHeader";
+import { EvalBar } from "@/components/EvalBar";
+import { EnginePanel } from "@/components/EnginePanel";
 import { PgnUploader } from "@/components/PgnUploader";
 import styles from "./page.module.css";
 
 export default function GamePage() {
+  const boardColumnRef = useRef<HTMLDivElement>(null);
+  const [boardWidth, setBoardWidth] = useState(460);
+
+  useEffect(() => {
+    const el = boardColumnRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? el.clientWidth;
+      // subtract eval bar (24px) + gap (8px) so the board fits inside boardRow
+      setBoardWidth(Math.min(Math.max(w - 32, 240), 600));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const {
     game,
     currentIndex,
@@ -22,6 +41,15 @@ export default function GamePage() {
     goPrev,
     goToMove,
   } = useChessGame();
+
+  const { result: engineResult, engineReady, analyze } = useStockfish(800);
+
+  // Re-analyze whenever the position changes (debounced so rapid nav doesn't thrash the engine)
+  useEffect(() => {
+    if (!game || !currentFen) return;
+    const timer = setTimeout(() => analyze(currentFen), 150);
+    return () => clearTimeout(timer);
+  }, [currentFen, game, analyze]);
 
   return (
     <main className={styles.main}>
@@ -45,7 +73,6 @@ export default function GamePage() {
             <button
               className={styles.backBtn}
               onClick={() => window.location.reload()}
-              title="Load another game"
             >
               ← New Game
             </button>
@@ -54,10 +81,17 @@ export default function GamePage() {
 
           {/* Game layout */}
           <div className={styles.layout}>
-            {/* Left: board + controls */}
-            <div className={styles.boardColumn}>
+            {/* Board column */}
+            <div className={styles.boardColumn} ref={boardColumnRef}>
               <GameHeader game={game} currentIndex={currentIndex} />
-              <Board fen={currentFen} lastMove={lastMove} boardWidth={520} />
+              <div className={styles.boardRow}>
+                <EvalBar
+                  evaluation={engineResult.evaluation}
+                  mate={engineResult.mate}
+                  isCalculating={engineResult.isCalculating}
+                />
+                <Board fen={currentFen} lastMove={lastMove} boardWidth={boardWidth} />
+              </div>
               <GameControls
                 canGoPrev={currentIndex >= 0}
                 canGoNext={currentIndex < game.moves.length - 1}
@@ -66,13 +100,16 @@ export default function GamePage() {
                 onGoNext={goNext}
                 onGoToEnd={goToEnd}
               />
-              <p className={styles.keyboardHint}>
-                Use ← → arrow keys to navigate
-              </p>
+              <p className={styles.keyboardHint}>Use ← → arrow keys to navigate</p>
             </div>
 
-            {/* Right: move list */}
+            {/* Side column: engine + move list */}
             <div className={styles.sideColumn}>
+              <EnginePanel
+                result={engineResult}
+                engineReady={engineReady}
+                currentFen={currentFen}
+              />
               <MoveList
                 moves={game.moves}
                 currentIndex={currentIndex}
@@ -85,3 +122,4 @@ export default function GamePage() {
     </main>
   );
 }
+

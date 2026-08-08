@@ -6,12 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup:engine": "node scripts/setup-engine.js"
   },
   "dependencies": {
+    "chess.js": "^1.4.0",
     "next": "16.3.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-chessboard": "^5.12.0",
+    "react-dom": "19.2.8",
+    "stockfish": "^18.0.8"
   },
   "devDependencies": {
     "@types/node": "^20",

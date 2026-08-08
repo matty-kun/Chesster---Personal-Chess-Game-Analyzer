@@ -1,0 +1,61 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 18px;
+  flex-shrink: 0;
+  /* height is driven by the parent boardRow (align-items: stretch) */
+}
+
+.bar {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 2px;
+}
+
+.blackPortion {
+  background: #1a1a1a;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.whitePortion {
+  background: #ffffff;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 1;
+}
+
+.centerLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1px;
+  background: rgba(180, 180, 180, 0.4);
+  pointer-events: none;
+}
+
+.label {
+  font-size: 0.6rem;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  padding-top: 4px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.calculating {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 1; }
+}

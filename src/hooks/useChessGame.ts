@@ -24,7 +24,7 @@ function parsePgn(pgn: string): ParsedGame | null {
 
     const headers: Record<string, string> = {};
     for (const [key, value] of Object.entries(chess.header())) {
-      headers[key] = value;
+      headers[key] = value ?? "";
     }
 
     // Replay to extract per-move FENs
