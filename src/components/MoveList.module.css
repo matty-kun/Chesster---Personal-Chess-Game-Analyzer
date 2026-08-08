@@ -1,0 +1,87 @@
+.container {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+.header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0.5rem 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2rem 1fr 1fr;
+  gap: 0.2rem;
+  align-items: center;
+  border-radius: 6px;
+  padding: 0.1rem 0.25rem;
+}
+
+.row:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.moveNum {
+  color: rgba(255,255,255,0.25);
+  font-size: 0.78rem;
+  text-align: right;
+  padding-right: 0.3rem;
+  user-select: none;
+}
+
+.move {
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.5rem;
+  text-align: left;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.move:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+.move.active {
+  background: rgba(74, 144, 217, 0.25);
+  color: #7dbfff;
+  font-weight: 700;
+}
