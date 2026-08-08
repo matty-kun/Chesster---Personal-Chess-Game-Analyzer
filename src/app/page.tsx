@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useChessGame } from "@/hooks/useChessGame";
 import { useStockfish } from "@/hooks/useStockfish";
 import { useGameAnalyzer } from "@/hooks/useGameAnalyzer";
-import { saveGameAction, saveReflectionAction } from "@/app/actions/gameActions";
+import { saveGameAction, saveReflectionAction, getGameByIdAction } from "@/app/actions/gameActions";
 import { Board } from "@/components/Board";
 import { MoveList } from "@/components/MoveList";
 import { GameControls } from "@/components/GameControls";
@@ -15,9 +16,12 @@ import { EnginePanel } from "@/components/EnginePanel";
 import { PgnUploader } from "@/components/PgnUploader";
 import styles from "./page.module.css";
 
-export default function GamePage() {
+function GameViewer() {
+  const searchParams = useSearchParams();
+  const gameId = searchParams.get("gameId");
   const boardColumnRef = useRef<HTMLDivElement>(null);
   const [boardWidth, setBoardWidth] = useState(460);
+
 
   useEffect(() => {
     const el = boardColumnRef.current;
@@ -40,6 +44,7 @@ export default function GamePage() {
     lastMove,
     parseError,
     loadPgn,
+    loadExistingGame,
     goToStart,
     goToEnd,
     goNext,
@@ -49,6 +54,17 @@ export default function GamePage() {
 
   const { result: engineResult, engineReady, analyze } = useStockfish(800);
   const { progress: analysisProgress, analyzedMoves, loadAnalyzedMoves, startAnalysis } = useGameAnalyzer(dbGameId);
+
+  // Load game from searchParams if provided
+  useEffect(() => {
+    if (gameId) {
+      getGameByIdAction(gameId).then(res => {
+        if (res.success && res.game) {
+          loadExistingGame(res.game.pgn, res.game.id);
+        }
+      });
+    }
+  }, [gameId, loadExistingGame]);
 
   // Re-analyze whenever the position changes (debounced so rapid nav doesn't thrash the engine)
   useEffect(() => {
@@ -102,7 +118,12 @@ export default function GamePage() {
                   mate={engineResult.mate}
                   isCalculating={engineResult.isCalculating}
                 />
-                <Board fen={currentFen} lastMove={lastMove} boardWidth={boardWidth} />
+                <Board 
+                  fen={currentFen} 
+                  lastMove={lastMove} 
+                  boardWidth={boardWidth} 
+                  classification={currentFen && analyzedMoves[currentFen]?.classification ? analyzedMoves[currentFen].classification : null}
+                />
               </div>
               <GameControls
                 canGoPrev={currentIndex >= 0}
@@ -147,6 +168,14 @@ export default function GamePage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function GamePage() {
+  return (
+    <Suspense fallback={<div style={{ padding: "2rem" }}>Loading...</div>}>
+      <GameViewer />
+    </Suspense>
   );
 }
 

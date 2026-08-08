@@ -107,6 +107,9 @@ export function useGameAnalyzer(dbGameId: string | null) {
           if (evalDrop > 3.0) classification = "Blunder";
           else if (evalDrop > 1.5) classification = "Mistake";
           else if (evalDrop > 0.8) classification = "Inaccuracy";
+          // Brilliant heuristic: You played a move better than or equal to the engine's initial thought, 
+          // AND you are winning significantly (+2.0 pawns or more).
+          else if (evalDrop <= 0 && evalAfterContext / 100 > 2.0) classification = "Brilliant";
 
           // If it's a mistake, save it to the DB and update local state
           if (classification) {

@@ -109,10 +109,10 @@
 
 /* ── Analysis Highlights ── */
 .move.blunder {
-  color: #ff5555;
+  color: var(--destructive);
   background: rgba(255, 85, 85, 0.1);
-  border-left: 2px solid #ff5555;
-  padding-left: 0.3rem; /* adjust for border */
+  border-left: 2px solid var(--destructive);
+  padding-left: 0.3rem; /* visually balance the border */
 }
 
 .move.mistake {
@@ -127,6 +127,19 @@
   background: rgba(241, 250, 140, 0.1);
   border-left: 2px solid #f1fa8c;
   padding-left: 0.3rem;
+}
+
+.move.brilliant {
+  color: #6effa0;
+  background: rgba(110, 255, 160, 0.1);
+  border-left: 2px solid #6effa0;
+  padding-left: 0.3rem;
+}
+
+.notationSuffix {
+  margin-left: 0.25rem;
+  font-weight: 800;
+  font-size: 0.9em;
 }
 
 .move.blunder.active,

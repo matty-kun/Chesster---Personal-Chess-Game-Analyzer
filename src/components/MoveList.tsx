@@ -22,6 +22,14 @@ const formatSan = (san: string) => {
     .replace("K", "♚ ");
 };
 
+const formatClassification = (classification?: string | null) => {
+  if (classification === "Blunder") return " ??";
+  if (classification === "Mistake") return " ?";
+  if (classification === "Inaccuracy") return " ?!";
+  if (classification === "Brilliant") return " !!";
+  return "";
+};
+
 export function MoveList({ moves, currentIndex, analyzedMoves = {}, onGoToMove }: Props) {
   // Group moves into pairs: [[white, black?], ...]
   const pairs: (MoveEntry | null)[][] = [];
@@ -52,11 +60,13 @@ export function MoveList({ moves, currentIndex, analyzedMoves = {}, onGoToMove }
                 className={`${styles.move} ${currentIndex === whiteIdx ? styles.active : ""} ${
                   analyzedMoves[pair[0]?.fenBefore || ""]?.classification === "Blunder" ? styles.blunder :
                   analyzedMoves[pair[0]?.fenBefore || ""]?.classification === "Mistake" ? styles.mistake :
-                  analyzedMoves[pair[0]?.fenBefore || ""]?.classification === "Inaccuracy" ? styles.inaccuracy : ""
+                  analyzedMoves[pair[0]?.fenBefore || ""]?.classification === "Inaccuracy" ? styles.inaccuracy :
+                  analyzedMoves[pair[0]?.fenBefore || ""]?.classification === "Brilliant" ? styles.brilliant : ""
                 }`}
                 onClick={() => onGoToMove(whiteIdx)}
               >
                 {formatSan(pair[0]?.san || "")}
+                <span className={styles.notationSuffix}>{formatClassification(analyzedMoves[pair[0]?.fenBefore || ""]?.classification)}</span>
               </button>
 
               {/* Black Move */}
@@ -65,11 +75,13 @@ export function MoveList({ moves, currentIndex, analyzedMoves = {}, onGoToMove }
                   className={`${styles.move} ${currentIndex === blackIdx ? styles.active : ""} ${
                     analyzedMoves[pair[1]?.fenBefore || ""]?.classification === "Blunder" ? styles.blunder :
                     analyzedMoves[pair[1]?.fenBefore || ""]?.classification === "Mistake" ? styles.mistake :
-                    analyzedMoves[pair[1]?.fenBefore || ""]?.classification === "Inaccuracy" ? styles.inaccuracy : ""
+                    analyzedMoves[pair[1]?.fenBefore || ""]?.classification === "Inaccuracy" ? styles.inaccuracy :
+                    analyzedMoves[pair[1]?.fenBefore || ""]?.classification === "Brilliant" ? styles.brilliant : ""
                   }`}
                   onClick={() => onGoToMove(blackIdx)}
                 >
                   {formatSan(pair[1].san)}
+                  <span className={styles.notationSuffix}>{formatClassification(analyzedMoves[pair[1]?.fenBefore || ""]?.classification)}</span>
                 </button>
               )}
             </div>

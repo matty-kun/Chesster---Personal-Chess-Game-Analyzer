@@ -133,4 +133,32 @@ export async function saveReflectionAction(moveId: string, reflection: string) {
   }
 }
 
+/**
+ * Fetches all games saved by the user.
+ */
+export async function getGamesAction() {
+  try {
+    const games = await prisma.game.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return { success: true, games };
+  } catch (error) {
+    console.error("Failed to fetch games:", error);
+    return { success: false, error: "Failed to fetch games." };
+  }
+}
 
+/**
+ * Fetches a specific game by ID.
+ */
+export async function getGameByIdAction(id: string) {
+  try {
+    const game = await prisma.game.findUnique({
+      where: { id },
+    });
+    return { success: true, game };
+  } catch (error) {
+    console.error("Failed to fetch game:", error);
+    return { success: false, error: "Failed to fetch game." };
+  }
+}

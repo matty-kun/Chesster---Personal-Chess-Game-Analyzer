@@ -76,6 +76,22 @@ export function useChessGame() {
     };
   }, [game, currentIndex]);
 
+  const loadExistingGame = useCallback((pgnData: string, existingGameId: string) => {
+    try {
+      const parsed = parsePgn(pgnData);
+      if (parsed) {
+        setGame(parsed);
+        setParseError(null);
+        setCurrentIndex(-1);
+        setDbGameId(existingGameId);
+      } else {
+        setParseError("Invalid PGN format");
+      }
+    } catch (err) {
+      setParseError(err instanceof Error ? err.message : "Failed to parse PGN");
+    }
+  }, []);
+
   const loadPgn = useCallback((pgn: string) => {
     const parsed = parsePgn(pgn);
     if (!parsed) {
@@ -133,6 +149,7 @@ export function useChessGame() {
     lastMove,
     parseError,
     loadPgn,
+    loadExistingGame,
     goToStart,
     goToEnd,
     goNext,

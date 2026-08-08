@@ -28,6 +28,9 @@ export default function RootLayout({
               <Link href="/" className={styles.navLink}>
                 <span className={styles.icon}>→</span> Game Viewer
               </Link>
+              <Link href="/games" className={styles.navLink}>
+                <span className={styles.icon}>≡</span> My Games
+              </Link>
               <Link href="/dashboard" className={styles.navLink}>
                 <span className={styles.icon}>◱</span> Dashboard
               </Link>
