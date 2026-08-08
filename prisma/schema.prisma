@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Represents an uploaded PGN game
+model Game {
+  id          String   @id @default(uuid())
+  pgn         String   @db.Text
+  white       String
+  black       String
+  date        DateTime?
+  result      String?
+  event       String?
+  
+  // Relations
+  analyzedMoves AnalyzedMove[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Represents a critical moment in a game (e.g., a mistake or blunder)
+model AnalyzedMove {
+  id              String   @id @default(uuid())
+  gameId          String
+  game            Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  fen             String   // The board position before the move
+  moveNumber      Int      // The full move number (e.g., 12)
+  color           String   // "white" or "black"
+  
+  playedMoveSan   String   // The move the human actually played
+  bestMoveSan     String?  // The engine's recommended move
+  
+  evalBefore      Float    // Centipawn eval before the move
+  evalAfter       Float    // Centipawn eval after the move
+  evalDrop        Float    // The difference (magnitude of the mistake)
+  
+  classification  String?  // e.g., "Blunder", "Mistake", "Inaccuracy"
+  
+  // For Phase 7 (Human Reflection)
+  humanReflection String?  @db.Text
+  tags            String[] // e.g., ["tactics", "time_pressure", "opening"]
+
+  createdAt       DateTime @default(now())
+}

@@ -10,11 +10,13 @@
     "setup:engine": "node scripts/setup-engine.js"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "chess.js": "^1.4.0",
     "next": "16.3.0",
     "react": "19.2.8",
     "react-chessboard": "^5.12.0",
     "react-dom": "19.2.8",
+    "recharts": "^3.10.1",
     "stockfish": "^18.0.8"
   },
   "devDependencies": {
@@ -23,6 +25,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "prisma": "^5.22.0",
     "typescript": "^5"
   }
 }

@@ -1,13 +1,17 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Chess } from "chess.js";
 import { EngineResult } from "@/hooks/useStockfish";
+import { AnalyzedMove } from "@prisma/client";
 import styles from "./EnginePanel.module.css";
 
 interface Props {
   result: EngineResult;
   engineReady: boolean;
   currentFen: string;
+  analyzedMove?: AnalyzedMove | null;
+  onSaveReflection?: (moveId: string, text: string) => Promise<void>;
 }
 
 /** Convert a UCI move string (e.g. "e2e4") to SAN using chess.js */
@@ -59,8 +63,23 @@ function evalColor(evaluation: number, mate: number | null): string {
   return "rgba(232,241,248,0.7)";
 }
 
-export function EnginePanel({ result, engineReady, currentFen }: Props) {
+export function EnginePanel({ result, engineReady, currentFen, analyzedMove, onSaveReflection }: Props) {
   const { bestMove, evaluation, mate, depth, principalVariation, isCalculating } = result;
+
+  const [reflectionText, setReflectionText] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Sync reflection text if we navigate to a move that already has one
+  useEffect(() => {
+    setReflectionText(analyzedMove?.humanReflection || "");
+  }, [analyzedMove?.id, analyzedMove?.humanReflection]);
+
+  const handleSaveReflection = async () => {
+    if (!analyzedMove || !onSaveReflection) return;
+    setIsSaving(true);
+    await onSaveReflection(analyzedMove.id, reflectionText);
+    setIsSaving(false);
+  };
 
   const bestMoveSan = bestMove ? uciToSan(currentFen, bestMove) : null;
   const pvSan = principalVariation.length > 0 ? pvToSan(currentFen, principalVariation) : null;
@@ -114,6 +133,32 @@ export function EnginePanel({ result, engineReady, currentFen }: Props) {
           <div className={styles.pvSection}>
             <span className={styles.rowLabel}>Line</span>
             <span className={styles.pv}>{pvSan}</span>
+          </div>
+        )}
+
+        {/* Reflection Journal (only shows if move is classified as mistake/blunder/inaccuracy) */}
+        {analyzedMove && analyzedMove.classification && (
+          <div className={styles.reflectionSection}>
+            <div className={styles.reflectionHeader}>
+              <span className={styles.reflectionIcon}>📝</span>
+              <span className={styles.reflectionTitle}>Reflection Journal</span>
+              <span className={`${styles.badge} ${styles[analyzedMove.classification.toLowerCase()]}`}>
+                {analyzedMove.classification}
+              </span>
+            </div>
+            <textarea
+              className={styles.reflectionInput}
+              placeholder="Why did you play this move? What did you miss?"
+              value={reflectionText}
+              onChange={(e) => setReflectionText(e.target.value)}
+            />
+            <button
+              className={styles.saveBtn}
+              onClick={handleSaveReflection}
+              disabled={isSaving || reflectionText === (analyzedMove.humanReflection || "")}
+            >
+              {isSaving ? "Saving..." : "Save Note"}
+            </button>
           </div>
         )}
       </div>

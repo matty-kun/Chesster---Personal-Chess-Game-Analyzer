@@ -1,5 +1,6 @@
 import { Chess, Square } from "chess.js";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { saveGameAction } from "@/app/actions/gameActions";
 
 export interface MoveEntry {
   san: string;
@@ -56,6 +57,8 @@ export function useChessGame() {
   const [game, setGame] = useState<ParsedGame | null>(null);
   const [currentIndex, setCurrentIndex] = useState(-1); // -1 = start position
   const [parseError, setParseError] = useState<string | null>(null);
+  const [dbGameId, setDbGameId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const currentFen = useMemo(() => {
     if (!game) return "start";
@@ -82,6 +85,16 @@ export function useChessGame() {
     setParseError(null);
     setGame(parsed);
     setCurrentIndex(-1);
+    setDbGameId(null); // Reset until saved
+
+    // Save to database asynchronously
+    startTransition(async () => {
+      const result = await saveGameAction(parsed.pgn);
+      if (result.success && result.gameId) {
+        setDbGameId(result.gameId);
+      }
+    });
+
     return true;
   }, []);
 
@@ -113,6 +126,8 @@ export function useChessGame() {
 
   return {
     game,
+    dbGameId,
+    isSaving: isPending,
     currentIndex,
     currentFen,
     lastMove,

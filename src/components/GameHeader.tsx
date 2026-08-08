@@ -1,14 +1,19 @@
 "use client";
 
 import { ParsedGame } from "@/hooks/useChessGame";
+import { AnalysisProgress } from "@/hooks/useGameAnalyzer";
 import styles from "./GameHeader.module.css";
 
 interface Props {
   game: ParsedGame;
   currentIndex: number;
+  dbGameId?: string | null;
+  isSaving?: boolean;
+  onAnalyze?: () => void;
+  analysisProgress?: AnalysisProgress;
 }
 
-export function GameHeader({ game, currentIndex }: Props) {
+export function GameHeader({ game, currentIndex, dbGameId, isSaving, onAnalyze, analysisProgress }: Props) {
   const { headers, moves } = game;
 
   const white = headers["White"] ?? "White";
@@ -40,6 +45,22 @@ export function GameHeader({ game, currentIndex }: Props) {
           </span>
         )}
         <span className={styles.tag}>{moves.length} moves</span>
+        {isSaving ? (
+          <span className={styles.tag}>☁️ Saving...</span>
+        ) : dbGameId ? (
+          <>
+            <span className={styles.tag}>☁️ Saved</span>
+            {analysisProgress?.isAnalyzing ? (
+              <span className={styles.analyzeText}>
+                Analyzing {analysisProgress.currentMove} / {analysisProgress.totalMoves}
+              </span>
+            ) : (
+              <button className={styles.analyzeBtn} onClick={onAnalyze}>
+                Analyze Game
+              </button>
+            )}
+          </>
+        ) : null}
       </div>
     </div>
   );
